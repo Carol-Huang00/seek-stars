@@ -4,6 +4,7 @@ import { calculateConstellation } from './utils/calculator';
 import InputForm from './components/InputForm';
 import ResultCard from './components/ResultCard';
 import CoverPage from './components/CoverPage';
+import WeComAuth from './components/WeComAuth';
 import { getConstellationByIndex } from './services/constellationData';
 import { saveToBackend } from './services/sheetService';
 
@@ -12,6 +13,9 @@ const App: React.FC = () => {
   const [displayData, setDisplayData] = useState<ConstellationData | null>(null);
   const [initLoading, setInitLoading] = useState(true);
   const [started, setStarted] = useState(false); // State to track if user clicked "Start"
+  const [wecomUser, setWeComUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -35,11 +39,16 @@ const App: React.FC = () => {
     const constellation = calculateConstellation(dateStr);
     setDisplayData(constellation);
 
-    // 2. Create Record Wrapper
+    // 2. Create Record Wrapper with WeCom info
     const newRecord: UserRecord = {
       birthDate: dateStr,
       constellationId: constellation.id,
       timestamp: Date.now(),
+      ...(wecomUser && {
+        wecomName: wecomUser.name,
+        wecomDepartments: wecomUser.departmentNames,
+        wecomPosition: wecomUser.position,
+      })
     };
 
     // 3. Save to LocalStorage (simulating backend save for user persistence)
@@ -51,12 +60,56 @@ const App: React.FC = () => {
     saveToBackend(newRecord, constellation.fullName);
   };
 
+  // Handle WeCom authentication
+  const handleWeComAuthSuccess = (userInfo: any) => {
+    setWeComUser(userInfo);
+    setAuthLoading(false);
+    setAuthError(null);
+  };
+
+  const handleWeComAuthError = (error: string) => {
+    setAuthError(error);
+    setAuthLoading(false);
+  };
+
   const handleStart = () => {
     setStarted(true);
   };
 
   if (initLoading) {
     return <div className="min-h-screen bg-[#020617] flex items-center justify-center text-amber-500 font-serif">加载中...</div>;
+  }
+
+  // Check if WeCom authentication is enabled (via environment variable)
+  const isWeComEnabled = process.env.NODE_ENV === 'production' || window.location.search.includes('wecom=true');
+
+  // Show WeCom authentication if enabled
+  if (isWeComEnabled && authLoading) {
+    return (
+      <WeComAuth 
+        onAuthSuccess={handleWeComAuthSuccess}
+        onAuthError={handleWeComAuthError}
+      />
+    );
+  }
+
+  // Show authentication error
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 mb-6">
+            <p className="text-red-400 text-sm font-serif mb-4">{authError}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-amber-600/20 border border-amber-500/30 text-amber-200 px-6 py-2 rounded-full hover:bg-amber-600/30 transition-all duration-300 font-serif"
+            >
+              重新尝试
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // 1. Show Cover Page first
@@ -78,6 +131,25 @@ const App: React.FC = () => {
       <div className="absolute top-1/3 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px]"></div>
 
       <main className="relative z-10 w-full flex flex-col items-center justify-center min-h-[80vh]">
+        {/* WeCom user info display */}
+        {wecomUser && (
+          <div className="mb-6">
+            <div className="inline-flex items-center space-x-3 bg-blue-950/30 backdrop-blur-md rounded-full px-6 py-3 border border-amber-500/20">
+              <div className="w-8 h-8 bg-amber-500/30 rounded-full flex items-center justify-center">
+                <span className="text-amber-200 text-sm font-serif">
+                  {wecomUser.name?.charAt(0) || '用'}
+                </span>
+              </div>
+              <div className="text-left">
+                <p className="text-amber-200 text-sm font-serif">{wecomUser.name}</p>
+                <p className="text-amber-500/60 text-xs">
+                  {wecomUser.departmentNames?.join(' / ')} {wecomUser.position && `- ${wecomUser.position}`}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {!record ? (
           <InputForm onSubmit={handleSubmission} />
         ) : (

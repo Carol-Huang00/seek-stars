@@ -23,6 +23,10 @@ export interface UserRecord {
   constellationId: number;
   timestamp: number;
   // aiInterpretation removed as we now use static 'fortune' data
+  // 企业微信相关信息（可选）
+  wecomName?: string;
+  wecomDepartments?: string[];
+  wecomPosition?: string;
 }
 
 export const LOCAL_STORAGE_KEY = 'star_destiny_record_v2'; // Bumped version due to schema change
