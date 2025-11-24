@@ -5,44 +5,46 @@ const getApiKey = (): string | undefined => {
   return process.env.API_KEY;
 }
 
-export const generateInterpretation = async (
-  constellation: ConstellationData, 
-  birthDate: string
-): Promise<string> => {
+// Generate Image using Gemini 2.5 Flash Image (Nano Banana)
+export const generateStarImage = async (prompt: string): Promise<string | undefined> => {
   const apiKey = getApiKey();
   if (!apiKey) {
-    console.warn("No API Key found in environment.");
-    return "星宿指引人生方向，福祸相依，唯心所造。";
+    console.warn("No API Key found. Cannot generate image.");
+    return undefined;
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey });
     
-    const prompt = `
-      用户生日: ${birthDate}
-      计算得出的中国二十八星宿: ${constellation.fullName}
-      所属: ${constellation.direction}
-      传统描述: ${constellation.description}
-
-      请扮演一位精通中国传统文化的国学大师。
-      请基于以上信息，为该用户生成一段“星宿启示”。
-      要求：
-      1. 文笔优美，古风与现代结合。
-      2. 包含对性格的简短分析。
-      3. 提供一句今日或近期的人生建议。
-      4. 篇幅控制在100字左右。
-      5. 不要解释计算过程，直接给出结果。
-      6. 语气神秘而温暖。
-    `;
-
+    // Call the model
+    // Using 'gemini-2.5-flash-image' as requested (Nano Banana)
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts: [
+          { text: prompt }
+        ]
+      },
+      config: {
+        imageConfig: {
+          aspectRatio: "3:4", // Portrait for cards
+          // imageSize: "1K" // Optional for Pro models
+        }
+      }
     });
 
-    return response.text || "星光照耀，前程似锦。";
+    // Extract image
+    if (response.candidates && response.candidates[0].content && response.candidates[0].content.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+        }
+      }
+    }
+    
+    return undefined;
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "星云流转，万物生辉。心存善念，必有回响。";
+    console.error("Gemini Image Gen Error:", error);
+    return undefined;
   }
 };

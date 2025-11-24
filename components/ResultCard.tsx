@@ -1,101 +1,234 @@
-import React, { useState } from 'react';
-import { ConstellationData } from '../types';
+import React, { useState, useEffect } from 'react';
+import { ConstellationData, Direction } from '../types';
+import { generateStarImage } from '../services/geminiService';
 
 interface ResultCardProps {
   data: ConstellationData;
+  userName?: string;
 }
 
-const ResultCard: React.FC<ResultCardProps> = ({ data }) => {
-  const [imgLoaded, setImgLoaded] = useState(false);
+const ResultCard: React.FC<ResultCardProps> = ({ data, userName = "旅人" }) => {
+  const [imageUrl, setImageUrl] = useState<string | undefined>(data.imageUrl);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const cacheKey = `constellation_game_v5_${data.id}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      setImageUrl(cached);
+    } else {
+      setLoading(true);
+      generateStarImage(data.imagePrompt).then(res => {
+        if(res) {
+          localStorage.setItem(cacheKey, res);
+          setImageUrl(res);
+        }
+        setLoading(false);
+      });
+    }
+  }, [data]);
+
+  // Helper to generate a consistent "Lucky Color" based on ID
+  const getLuckyColor = (id: number) => {
+    const colors = ['#ADD8E6', '#FFB6C1', '#98FB98', '#FFD700', '#E6E6FA', '#F08080', '#87CEFA'];
+    return colors[id % colors.length];
+  };
+
+  const luckyColor = getLuckyColor(data.id);
+
+  // Theme Logic: Exact match to reference colors
+  // 朱雀：红色 | 白虎：橙色 | 玄武：蓝色 | 青龙：青色
+  const getThemeStyles = (dir: Direction) => {
+    switch (dir) {
+      case Direction.SOUTH: // 朱雀 - Red
+        return {
+          wrapper: 'bg-[#2a0a0a] border-[#ffb3b3]',
+          innerBorder: 'border-[#5c2b2b]',
+          headerTag: 'border-[#ff8080] bg-[#3d1a1a] text-[#ffcccc]',
+          nameText: 'text-[#ffcccc]',
+          titleGradient: 'from-[#fff0f0] to-[#ff9999]', // White to Pink/Red
+          subTitle: 'text-[#ffb3b3]',
+          accentBox: 'bg-[#3d1a1a]/80 border-[#5c2b2b]',
+          highlight: '#ff4d4d',
+        };
+      case Direction.WEST: // 白虎 - Orange
+        return {
+          wrapper: 'bg-[#2a1505] border-[#ffcc80]',
+          innerBorder: 'border-[#5c3a1a]',
+          headerTag: 'border-[#ffb74d] bg-[#3d220a] text-[#ffe0b2]',
+          nameText: 'text-[#ffe0b2]',
+          titleGradient: 'from-[#fffbf0] to-[#ffcc80]', // White to Orange/Gold
+          subTitle: 'text-[#ffcc80]',
+          accentBox: 'bg-[#3d220a]/80 border-[#5c3a1a]',
+          highlight: '#ff9800',
+        };
+      case Direction.NORTH: // 玄武 - Blue
+        return {
+          wrapper: 'bg-[#050a20] border-[#99ccff]',
+          innerBorder: 'border-[#1a2b5c]',
+          headerTag: 'border-[#66b3ff] bg-[#0f1a3d] text-[#cce5ff]',
+          nameText: 'text-[#cce5ff]',
+          titleGradient: 'from-[#f0f8ff] to-[#80bfff]', // White to Blue
+          subTitle: 'text-[#99ccff]',
+          accentBox: 'bg-[#0f1a3d]/80 border-[#1a2b5c]',
+          highlight: '#00bfff',
+        };
+      case Direction.EAST: // 青龙 - Cyan
+        return {
+          wrapper: 'bg-[#05201a] border-[#80ffdb]',
+          innerBorder: 'border-[#1a5c4d]',
+          headerTag: 'border-[#5eead4] bg-[#0a3d33] text-[#ccfbf1]',
+          nameText: 'text-[#ccfbf1]',
+          titleGradient: 'from-[#f0fdfa] to-[#5eead4]', // White to Teal
+          subTitle: 'text-[#80ffdb]',
+          accentBox: 'bg-[#0a3d33]/80 border-[#1a5c4d]',
+          highlight: '#1de9b6',
+        };
+      default:
+        return {
+          wrapper: 'bg-gray-900 border-gray-500',
+          innerBorder: 'border-gray-700',
+          headerTag: 'border-gray-500 bg-gray-800 text-gray-300',
+          nameText: 'text-white',
+          titleGradient: 'from-white to-gray-400',
+          subTitle: 'text-gray-400',
+          accentBox: 'bg-gray-800 border-gray-700',
+          highlight: '#ffffff',
+        };
+    }
+  };
+
+  const theme = getThemeStyles(data.direction);
 
   return (
-    <div className="relative w-full max-w-lg mx-auto perspective-1000 animate-fade-in px-4 pb-8">
+    <div className="animate-fade-in w-full max-w-[420px] mx-auto p-2 relative z-20">
       
-      {/* Main Card Container - "Palace" Style */}
-      <div className="relative bg-red-950 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.6)] border-4 border-amber-600">
+      {/* Outer Card Wrapper */}
+      <div className={`
+        relative w-full rounded-[20px] p-1.5 shadow-2xl
+        ${theme.wrapper} border-[3px]
+      `}>
         
-        {/* Gold Ornament Patterns (Corner Decor) */}
-        <div className="absolute top-0 left-0 w-24 h-24 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-transparent z-20"></div>
-        <div className="absolute bottom-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-transparent z-20"></div>
+        {/* Inner Decor Line (inset) */}
+        <div className={`
+          relative w-full h-full rounded-[14px] p-5
+          border ${theme.innerBorder}
+          flex flex-col gap-5
+        `}>
 
-        {/* --- Header Section (Name) --- */}
-        <div className="bg-[#450a0a] border-b-4 border-amber-600 p-4 text-center relative z-10">
-            {/* Pattern Overlay */}
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            
-            <h3 className="text-amber-200 text-xs font-serif tracking-[0.6em] uppercase mb-1">{data.direction}</h3>
-            <h1 className="text-4xl md:text-5xl font-calligraphy text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-500 drop-shadow-md py-1">
-              {data.fullName}
-            </h1>
-        </div>
+          {/* --- Corner L-Shapes (The "Tech/Game" look) --- */}
+          <div className={`absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 ${theme.wrapper.split(' ')[1]} rounded-tl-sm opacity-80`}></div>
+          <div className={`absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 ${theme.wrapper.split(' ')[1]} rounded-tr-sm opacity-80`}></div>
+          <div className={`absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 ${theme.wrapper.split(' ')[1]} rounded-bl-sm opacity-80`}></div>
+          <div className={`absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 ${theme.wrapper.split(' ')[1]} rounded-br-sm opacity-80`}></div>
 
-        {/* --- Image Section (The "Blind Box" Character) --- */}
-        <div className="relative aspect-[4/5] w-full bg-gradient-to-b from-[#0f172a] to-[#1e1b4b] overflow-hidden group border-b-4 border-amber-600">
-          
-          {/* Loading Placeholder */}
-          {!imgLoaded && (
-             <div className="absolute inset-0 flex flex-col items-center justify-center text-amber-500/50 font-serif gap-2 animate-pulse">
-                <div className="w-12 h-12 rounded-full border-2 border-amber-500/30 border-t-amber-500 animate-spin"></div>
-                <span>神兽唤醒中...</span>
-             </div>
-          )}
-          
-          {/* Main Image */}
-          <img 
-            src={data.imageUrl} 
-            alt={data.fullName}
-            onLoad={() => setImgLoaded(true)}
-            className={`w-full h-full object-cover transition-all duration-1000 ease-out ${imgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-          />
 
-          {/* Floating Element Badge */}
-          <div className="absolute top-4 right-4 w-14 h-14">
-             {/* Badge Body */}
-             <div className="w-full h-full rounded-lg bg-red-900/90 border-2 border-amber-400 shadow-lg flex items-center justify-center rotate-3 transform hover:rotate-0 transition-transform">
-                <span className="text-amber-100 font-calligraphy text-2xl drop-shadow-md">{data.element}</span>
-             </div>
-             {/* Badge Glow */}
-             <div className="absolute -inset-2 bg-amber-500 rounded-lg blur-lg opacity-30 -z-10"></div>
+          {/* --- Header --- */}
+          <div className="flex justify-between items-center z-10">
+            {/* Tag */}
+            <div className={`
+              px-3 py-1 rounded-full border ${theme.headerTag}
+              text-xs font-serif tracking-widest shadow-sm
+            `}>
+              暖冬节快乐
+            </div>
+            {/* Name */}
+            <div className={`font-serif text-lg tracking-wide ${theme.nameText} font-bold drop-shadow-md`}>
+              {userName}
+            </div>
           </div>
 
-          {/* Bottom Gradient for Text */}
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-red-950/90 via-red-950/50 to-transparent pointer-events-none"></div>
 
-          {/* Animal Name Tag */}
-          <div className="absolute bottom-4 left-4 z-20">
-             <div className="px-4 py-1 bg-amber-500 text-red-950 font-bold font-serif text-lg rounded-full shadow-lg border border-amber-200">
-               {data.animal}神
+          {/* --- Image & Title Section --- */}
+          <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-inner border border-white/5 bg-black/20 group">
+             
+             {/* The Image */}
+             {loading ? (
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <span className={`${theme.subTitle} animate-pulse font-serif text-sm`}>星灵召唤中...</span>
+               </div>
+             ) : (
+               <img 
+                 src={imageUrl} 
+                 alt={data.name} 
+                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" 
+               />
+             )}
+             
+             {/* Bottom Gradient for Text Readability */}
+             <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none"></div>
+
+             {/* Floating Title Overlay */}
+             <div className="absolute bottom-6 left-0 w-full text-center z-10 flex flex-col items-center">
+                <h1 className={`
+                  font-calligraphy text-6xl mb-2
+                  text-transparent bg-clip-text bg-gradient-to-b ${theme.titleGradient}
+                  drop-shadow-[0_4px_4px_rgba(0,0,0,1)]
+                  filter brightness-110
+                `}>
+                  {data.fullName}
+                </h1>
+                
+                <div className="flex items-center justify-center gap-3 opacity-90">
+                   <div className={`h-[1px] w-12 ${theme.wrapper.split(' ')[1].replace('border-','bg-')}`}></div>
+                   <span className={`text-sm font-serif tracking-[0.2em] ${theme.subTitle} uppercase`}>
+                      {data.direction}
+                   </span>
+                   <div className={`h-[1px] w-12 ${theme.wrapper.split(' ')[1].replace('border-','bg-')}`}></div>
+                </div>
              </div>
           </div>
-        </div>
 
-        {/* --- Content Body (Scroll) --- */}
-        <div className="p-6 bg-[#2a0a0a] relative">
-          
-          {/* Poem */}
-          <div className="mb-6 relative">
-             <div className="absolute -left-2 top-0 bottom-0 w-1 bg-amber-700/50 rounded"></div>
-             <p className="pl-4 text-amber-100/80 font-serif italic leading-relaxed">
-               "{data.poem}"
-             </p>
+
+          {/* --- Attributes Row --- */}
+          <div className="grid grid-cols-2 gap-4">
+             {/* Element Box */}
+             <div className={`
+               flex flex-col items-center justify-center py-3 rounded-lg border ${theme.accentBox}
+               backdrop-blur-sm
+             `}>
+                <span className={`text-[10px] ${theme.subTitle} mb-1 opacity-60 tracking-widest`}>五行属性</span>
+                <span className={`text-3xl font-serif font-bold ${theme.nameText} drop-shadow-sm`}>
+                  {data.element}
+                </span>
+             </div>
+
+             {/* Color Box */}
+             <div className={`
+               flex flex-col items-center justify-center py-3 rounded-lg border ${theme.accentBox}
+               backdrop-blur-sm
+             `}>
+                <span className={`text-[10px] ${theme.subTitle} mb-1 opacity-60 tracking-widest`}>幸运色</span>
+                <div className="flex items-center gap-2 mt-1">
+                   <div className="w-5 h-5 rounded-full border border-white/20 shadow-inner" style={{ backgroundColor: luckyColor }}></div>
+                   <span className={`text-sm font-serif ${theme.nameText} opacity-90`}>{luckyColor}</span>
+                </div>
+             </div>
           </div>
 
-          {/* Fortune Box */}
-          <div className="bg-[#450a0a] rounded-xl p-4 border border-amber-800/50 relative">
-             <div className="flex items-center gap-2 mb-2 pb-2 border-b border-amber-900/50">
-                <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-                <h4 className="text-amber-400 font-bold text-sm tracking-widest">星宿启示</h4>
+
+          {/* --- Fortune Section --- */}
+          <div className={`
+            relative mt-2 p-5 rounded-lg border ${theme.accentBox}
+            backdrop-blur-sm
+          `}>
+             {/* Floating Label */}
+             <div className={`
+               absolute -top-3 left-1/2 transform -translate-x-1/2
+               px-4 py-[2px] rounded-full border ${theme.headerTag}
+               text-[10px] tracking-[0.2em] shadow-sm
+             `}>
+               星运批注
              </div>
-             <p className="text-amber-100/90 font-serif text-sm leading-7 text-justify">
-                {data.fortune}
+
+             {/* Content */}
+             <p className={`text-justify font-serif text-[13px] leading-6 ${theme.nameText} opacity-80 indent-6`}>
+               {data.fortune}
              </p>
           </div>
 
         </div>
       </div>
-      
-      {/* Background Glows for the Card */}
-      <div className="absolute top-10 left-10 right-10 bottom-10 bg-amber-500/10 blur-[80px] -z-10"></div>
     </div>
   );
 };

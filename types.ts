@@ -14,19 +14,24 @@ export interface ConstellationData {
   direction: Direction;
   description: string; // Traditional concise description
   poem: string; // Classical poem
-  fortune: string; // Pre-stored detailed interpretation (replacing AI)
-  imageUrl: string; // Static asset URL
+  fortune: string; // Pre-stored detailed interpretation
+  imageUrl?: string; // Optional: Base64 string from AI or static URL
+  imagePrompt: string; // The prompt used to generate the image via Gemini
 }
 
 export interface UserRecord {
   birthDate: string; // YYYY-MM-DD
   constellationId: number;
   timestamp: number;
-  // aiInterpretation removed as we now use static 'fortune' data
-  // 企业微信相关信息（可选）
-  wecomName?: string;
-  wecomDepartments?: string[];
-  wecomPosition?: string;
+  userName?: string;
+  employeeId?: string;
 }
 
-export const LOCAL_STORAGE_KEY = 'star_destiny_record_v2'; // Bumped version due to schema change
+// Manage user profile from WeChat Work
+export interface UserProfile {
+  name: string;
+  userid: string;
+  avatar?: string;
+}
+
+export const LOCAL_STORAGE_KEY = 'star_destiny_record_v3';

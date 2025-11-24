@@ -1,17 +1,11 @@
 import { ConstellationData, Direction } from '../types';
 
-// In a real backend scenario, these would be paths to local assets like '/images/beasts/jiao.png'
-// Here we use deterministic URLs that act as our "stored" assets.
-const getStaticAssetUrl = (animal: string, element: string, seed: number) => {
-  // Updated Prompt: 3D, C4D, Pop Mart Style, Guochao, Festive
-  const prompt = `cute 3D chinese mythical beast ${animal} representing ${element} element, pop mart style, blind box toy design, C4D, octane render, clay texture, vibrant colors, glowing accessories, festive atmosphere, clean dark blue background, masterpiece, 8k`;
-  const encoded = encodeURIComponent(prompt);
-  return `https://image.pollinations.ai/prompt/${encoded}?width=800&height=800&seed=${seed}&nologo=true`;
-};
+// STYLE: High Fantasy Game Art / Digital Illustration
+// Updated to match the "Deer" and "Monkey" reference: Glowing, Ethereal, Body Patterns, Swirling Energy.
+const STYLE_SUFFIX = ", digital fantasy painting, masterpiece, best quality, game concept art (Onmyoji style), ethereal glowing aura, intricate cloud patterns on body, gold filigree details, magical swirling energy around, deep dark starry night background, cinematic lighting, 8k resolution.";
 
-// The "Backend" Database
 export const CONSTELLATIONS: ConstellationData[] = [
-  // --- EAST (Azure Dragon) ---
+  // --- EAST (Wood) - Cyan/Green/Teal Base + Gold Accents ---
   {
     id: 0,
     name: '角',
@@ -19,10 +13,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '蛟',
     element: '木',
     direction: Direction.EAST,
-    description: '角星造作主荣昌，外进田财及女郎。嫁娶婚姻出贵子，文人及第见君王。',
-    poem: '东方苍龙之角，为万物生发之首。',
-    fortune: '角宿为二十八星宿之首，象征着春回大地，万物复苏。你天生具有领导潜质与开创精神，正如破土而出的新芽。近期运势如日中天，适合开启新的计划或学习新的技能，但需注意戒骄戒躁，稳扎稳打方能长久。',
-    imageUrl: getStaticAssetUrl('Flood Dragon', 'Wood', 100),
+    description: '角星造作主荣昌，外进田财及女郎。',
+    poem: '春雨初霁，潜龙勿用。',
+    fortune: '角宿为二十八宿之首，象征万物复苏的春之生机。此星宿之人，天生具备领袖气质与不凡的洞察力，性格坚韧，行事果决。早年或许波折，但如潜龙在渊，积蓄力量后必能一飞冲天。善于在变局中寻找机会，一生贵人运极佳，然需戒骄戒躁，方能福泽绵长。',
+    imagePrompt: `A divine Flood Dragon (Jiao), emerald green scales with golden cloud patterns, glowing antlers, swirling cyan magical energy, mystical atmosphere${STYLE_SUFFIX}`,
   },
   {
     id: 1,
@@ -31,10 +25,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '龙',
     element: '金',
     direction: Direction.EAST,
-    description: '亢星造作长房当，十日之中主有殃。田地消磨官失职，投军定是虎狼伤。',
-    poem: '刚毅正直，如龙之升天。',
-    fortune: '亢宿象征着极度的刚强与正直。你性格中有着不屈不挠的韧性，遇强则强。然而“亢龙有悔”，在人际交往中建议多一份柔和与包容，刚柔并济方能化解阻力，成就大业。',
-    imageUrl: getStaticAssetUrl('Majestic Dragon', 'Metal', 101),
+    description: '亢星造作长房当，十日之中主有殃。',
+    poem: '亢龙有悔，刚柔并济。',
+    fortune: '亢宿由龙角延伸而来，气宇轩昂，刚正不阿。你性格耿直，极具正义感，做事雷厉风行，不喜拖泥带水。在团队中常担任核心角色，有着极强的执行力。然“亢龙有悔”，过刚易折，若能学会以柔克刚，修身养性，定能成就一番伟业，名扬四海。',
+    imagePrompt: `A majestic Dragon, azure blue scales with glowing gold trim, mane made of teal light, surrounding by floating starry ribbons, dynamic flight${STYLE_SUFFIX}`,
   },
   {
     id: 2,
@@ -43,10 +37,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '貉',
     element: '土',
     direction: Direction.EAST,
-    description: '氐星造作主灾凶，费尽田园仓库空。埋葬不可用此日，悬绳吊颈祸重重。',
-    poem: '根基深厚，然需防口舌。',
-    fortune: '氐宿代表着根基与根本。你为人稳重，做事有条不紊，是团队中不可或缺的基石。近期需注意防范口舌是非，少说多做，默默耕耘自有收获，切勿卷入无谓的争端。',
-    imageUrl: getStaticAssetUrl('Raccoon Dog Beast', 'Earth', 102),
+    description: '氐星造作主灾凶，费尽田园仓库空。',
+    poem: '根深叶茂，稳如泰山。',
+    fortune: '氐宿为苍龙之胸，代表根基与根本。你为人稳重，外表或许不善言辞，但内心极有主见与城府。做事脚踏实地，不追求一时之快，而看重长远发展。你是值得信赖的合作伙伴，虽大器晚成，但一旦成功便如泰山般稳固，福禄双全，晚运极佳。',
+    imagePrompt: `A mystical Raccoon Dog spirit, brown fur with glowing turquoise markings, sitting on a giant ancient root, surrounded by floating green leaves and magic particles${STYLE_SUFFIX}`,
   },
   {
     id: 3,
@@ -55,10 +49,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '兔',
     element: '日',
     direction: Direction.EAST,
-    description: '房星造作田园进，血财牛马遍山岗。更招外处客留住，良妻美妾秀满堂。',
-    poem: '吉庆之星，多福多寿。',
-    fortune: '房宿是著名的吉星，象征着富足与安乐。你通常运气不错，能在关键时刻得到贵人相助。生性乐观，无论顺境逆境都能保持平和心态。珍惜当下的福分，多行善事，福气自会绵延。',
-    imageUrl: getStaticAssetUrl('Jade Rabbit', 'Sun', 103),
+    description: '房星造作田园进，血财牛马遍山岗。',
+    poem: '狡兔三窟，福禄双全。',
+    fortune: '房宿被称为“天驷”，是难得的吉星，象征富足与奔驰。你天生乐观豁达，机敏灵活，有着极强的环境适应能力。总能在变动中找到安身立命之所，不仅财运亨通，更难得的是一生逍遥自在。要注意的是，切勿因过于顺利而安于现状，应保持进取之心。',
+    imagePrompt: `A divine Jade Rabbit, pure white fur with glowing green runic patterns, holding a golden pestle, surrounded by medicinal herbs and green aura${STYLE_SUFFIX}`,
   },
   {
     id: 4,
@@ -67,10 +61,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '狐',
     element: '月',
     direction: Direction.EAST,
-    description: '心星造作大为凶，更遭刑讼狱囚中。忤逆官非因此起，兄弟姐妹有刑伤。',
-    poem: '心思缜密，然易招猜忌。',
-    fortune: '心宿位于苍龙心脏，象征着智慧与核心。你心思细腻，洞察力极强，往往能看透事物的本质。但有时过于敏感多疑，容易让自己陷入内耗。学会信任与放手，你的才华将得到更充分的施展。',
-    imageUrl: getStaticAssetUrl('Nine-Tailed Fox', 'Moon', 104),
+    description: '心星造作大为凶，更遭刑讼狱囚中。',
+    poem: '七窍玲珑，洞察人心。',
+    fortune: '心宿为苍龙之心，主智慧与谋略，亦主变幻。你心思细腻，情感丰富，直觉敏锐得惊人，能轻易看透他人伪装。社交场上游刃有余，拥有独特的个人魅力。善用智慧可成大器，但需防多疑多思导致精神内耗，保持内心的纯净与坚定是你一生的课题。',
+    imagePrompt: `A Nine-Tailed Fox, silver fur with teal gradient tips, tails glowing with spiritual fire, intricate jewelry, mysterious eyes, magical forest background${STYLE_SUFFIX}`,
   },
   {
     id: 5,
@@ -79,10 +73,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '虎',
     element: '火',
     direction: Direction.EAST,
-    description: '尾星造作主天恩，富贵荣华福寿增。招财进宝与田宅，和合婚姻贵子孙。',
-    poem: '勇猛精进，无往不利。',
-    fortune: '尾宿代表着苍龙之尾，虽在后却有力。你性格中有好胜的一面，且具备极强的爆发力。在事业上往往能后来居上，获得令人瞩目的成就。保持这份冲劲，成功就在不远处。',
-    imageUrl: getStaticAssetUrl('Divine Tiger', 'Fire', 105),
+    description: '尾星造作主天恩，富贵荣华福寿增。',
+    poem: '猛虎下山，势不可挡。',
+    fortune: '尾宿为苍龙之尾，主攻击与后劲。你平时低调内敛，不显山露水，但一旦认定目标，便会爆发出惊人的能量，如猛虎下山般势不可挡。你有着极强的竞争意识和不服输的韧劲，往往能在逆境中翻盘。在事业上极具开拓精神，是天生的斗士。',
+    imagePrompt: `A fierce Tiger, blue fur with burning orange stripes (magical fire), wearing golden armor plates, aggressive stance, paws surrounded by blue flames${STYLE_SUFFIX}`,
   },
   {
     id: 6,
@@ -91,13 +85,13 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '豹',
     element: '水',
     direction: Direction.EAST,
-    description: '箕星造作主高强，岁岁年年大吉昌。埋葬修坟大吉利，田蚕牛马遍山岗。',
-    poem: '风起云涌，好辩多才。',
-    fortune: '箕宿好风，象征着自由与变动。你口才极佳，善于交际，喜欢新鲜事物，不喜欢受拘束。你的生活中充满了变化与机遇，抓住风口，你就能乘风而起，创造属于自己的天地。',
-    imageUrl: getStaticAssetUrl('Water Leopard', 'Water', 106),
+    description: '箕星造作主高强，岁岁年年大吉昌。',
+    poem: '风驰电掣，自由不羁。',
+    fortune: '箕宿好风，主口舌与自由。你思维敏捷，口才极佳，是天生的演说家与传播者。向往无拘无束的生活，讨厌条条框框的束缚。你行事风格独特，不拘小节，常有惊人之语或创新之举。虽有时显得特立独行，但这份洒脱正是你魅力的源泉。',
+    imagePrompt: `A Spirit Leopard, sleek body with spots that look like glowing constellations, surrounded by wind magic and leaves, dynamic running pose${STYLE_SUFFIX}`,
   },
 
-  // --- NORTH (Black Tortoise) ---
+  // --- NORTH (Water) - Deep Blue/Black Base + Silver/Ice Accents ---
   {
     id: 7,
     name: '斗',
@@ -105,10 +99,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '獬',
     element: '木',
     direction: Direction.NORTH,
-    description: '斗星造作主招财，文武官员位鼎台。田宅家财千万进，坟茔修筑富贵来。',
-    poem: '天之府库，量才录用。',
-    fortune: '斗宿被称为“天庙”，象征着崇高的地位与才华。你自尊心强，有着远大的志向。在工作中往往能独当一面。近期利于考取功名或职位晋升，是展现才华的好时机。',
-    imageUrl: getStaticAssetUrl('Xiezhi Unicorn', 'Wood', 107),
+    description: '斗星造作主招财，文武官员位鼎台。',
+    poem: '正大光明，天之喉舌。',
+    fortune: '斗宿为北方玄武之首，有“天庙”之称，崇尚公正与秩序。你胸怀大志，明辨是非，具有崇高的理想与强烈的社会责任感。在团队中常扮演裁判或精神领袖的角色，受人尊敬。虽不追求一时之利，但你的声望与地位会随着时间推移而稳步上升。',
+    imagePrompt: `A mythical Xiezhi beast, deep obsidian skin with glowing blue cracks (kintsugi style), single sapphire horn, surrounded by justice aura and mist${STYLE_SUFFIX}`,
   },
   {
     id: 8,
@@ -117,10 +111,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '牛',
     element: '金',
     direction: Direction.NORTH,
-    description: '牛星造作主灾危，九横三灾不可推。家宅不安人口退，田蚕不利主人衰。',
-    poem: '勤恳劳作，大器晚成。',
-    fortune: '牛宿象征着牺牲与奉献。你性格坚韧，能够吃苦耐劳，不轻言放弃。虽然早年可能较为辛苦，但属于大器晚成之相。只需坚持不懈，终将苦尽甘来，收获丰硕的果实。',
-    imageUrl: getStaticAssetUrl('Iron Ox', 'Metal', 108),
+    description: '牛星造作主灾危，九横三灾不可推。',
+    poem: '俯首甘为，厚积薄发。',
+    fortune: '牛宿象征牺牲与耕耘，是坚韧不拔的代表。你性格沉稳，做事踏实，不善言辞却默默付出。你不相信天上掉馅饼，只信奉天道酬勤。早年或许会经历一些磨砺与考验，但这些都是你成功的基石。中年之后，运势如虹，必定大器晚成，福泽深厚。',
+    imagePrompt: `A celestial Ox, dark blue body with silver constellation maps on fur, horns made of glowing ice crystal, sturdy and powerful stance, galaxy background${STYLE_SUFFIX}`,
   },
   {
     id: 9,
@@ -129,10 +123,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '蝠',
     element: '土',
     direction: Direction.NORTH,
-    description: '女星造作损婆娘，兄弟相嫌似虎狼。埋葬生灾逢鬼怪，颠邪疾病主瘟惶。',
-    poem: '心灵手巧，独具匠心。',
-    fortune: '女宿代表着手工与技艺。你内心丰富，或许外表沉静，但内心世界斑斓。适合从事需要专注力与创造力的工作。近期注意调节情绪，多参与社交活动，避免过度封闭。',
-    imageUrl: getStaticAssetUrl('Giant Bat', 'Earth', 109),
+    description: '女星造作损婆娘，兄弟相嫌似虎狼。',
+    poem: '织女穿梭，巧夺天工。',
+    fortune: '女宿主技艺与内秀。你内心世界极其丰富，情感细腻，有着独特的审美与艺术天赋。心灵手巧，对专门技术或学术研究有着独到的见解。你或许不喜欢热闹的社交场合，但在自己热爱的领域里，你就是当之无愧的王者，能创造出令人惊叹的作品。',
+    imagePrompt: `A stylized Bat spirit, elegant wings with purple and silver embroidery patterns, glowing eyes, surrounded by weaving threads of light${STYLE_SUFFIX}`,
   },
   {
     id: 10,
@@ -141,10 +135,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '鼠',
     element: '日',
     direction: Direction.NORTH,
-    description: '虚星造作主卓灾，男女孤眠不唱乖。内乱风声无礼节，儿孙媳妇伴墙开。',
-    poem: '虽有波折，终能积聚。',
-    fortune: '虚宿象征着空虚与充盈的辩证。你人生可能经历过一些起伏，但这些经历都是宝贵的财富。你有着极强的适应能力，能在逆境中寻找生机，未来必将由虚转实，富贵盈门。',
-    imageUrl: getStaticAssetUrl('Mystical Rat', 'Sun', 110),
+    description: '虚星造作主卓灾，男女孤眠不唱乖。',
+    poem: '虚怀若谷，绝处逢生。',
+    fortune: '虚宿主空灵、机变与精神世界。你适应力极强，能从无到有，善于在危机中寻找转机。你对物质看得相对淡泊，更追求精神层面的满足与升华。虽人生旅途可能起伏较大，但你总能凭智慧化险为夷，拥有一种历尽千帆后的淡然与通透。',
+    imagePrompt: `A clever Rat spirit, dark fur with glowing blue runes, standing on a floating geometric crystal, holding a mysterious orb, mystical aura${STYLE_SUFFIX}`,
   },
   {
     id: 11,
@@ -153,10 +147,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '燕',
     element: '月',
     direction: Direction.NORTH,
-    description: '危星造作主天赫，此号通天第一峰。埋葬修坟大吉利，一门荣贵福无穷。',
-    poem: '居安思危，敏捷灵巧。',
-    fortune: '危宿代表着高度与险峻。你性格独立，喜欢挑战，不甘平庸。行事风格雷厉风行，但也容易冲动。建议凡事三思而后行，“居安思危”是你的人生箴言，稳中求进方为上策。',
-    imageUrl: getStaticAssetUrl('Swallow Bird', 'Moon', 111),
+    description: '危星造作主天赫，此号通天第一峰。',
+    poem: '高处不胜，身轻如燕。',
+    fortune: '危宿主险峻、高度与速度。你天生喜欢挑战，不甘平庸，厌恶一成不变的生活。行事果决，有着极其敏锐的危机感，总能先人一步察觉风向。你适合从事具有挑战性或前沿性的工作，在动态的竞争中更能激发你的潜能，成就非凡。',
+    imagePrompt: `A Swallow flying, deep indigo feathers with neon blue edges, leaving a trail of light, dynamic speed, sharp contrast${STYLE_SUFFIX}`,
   },
   {
     id: 12,
@@ -165,10 +159,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '猪',
     element: '火',
     direction: Direction.NORTH,
-    description: '室星造作进田牛，儿孙代代近王侯。富贵荣华天上至，寿如彭祖八千秋。',
-    poem: '刚毅果决，勇往直前。',
-    fortune: '室宿象征着营室与家业。你性格豪爽，讲义气，人缘极好。有着天生的管理才能与财富运。只要愿意付出努力，定能家业兴旺，富甲一方。是值得信赖的合作伙伴。',
-    imageUrl: getStaticAssetUrl('Wild Boar', 'Fire', 112),
+    description: '室星造作进田牛，儿孙代代近王侯。',
+    poem: '广厦万间，豪气干云。',
+    fortune: '室宿又名“营室”，主家业、营造与统御。你性格豪爽，讲义气，具大将风范与领导才能。你善于经营与规划，做事有格局，不拘泥于小节。无论是在商界还是职场，你都能凭借过人的胆识与魄力，开疆拓土，建立属于自己的一番事业。',
+    imagePrompt: `A mighty Boar spirit, covered in dark armor with glowing purple veins, tusks of pure energy, standing in a fortress of blue fire${STYLE_SUFFIX}`,
   },
   {
     id: 13,
@@ -177,13 +171,13 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '貐',
     element: '水',
     direction: Direction.NORTH,
-    description: '壁星造作主增财，丝蚕大熟福滔天。奴婢自来人口进，一门荣显尽绵绵。',
-    poem: '文章华国，好学不倦。',
-    fortune: '壁宿代表着墙壁与图书。你性格内敛，喜爱读书与思考，有着深厚的文化底蕴。你是默默的支持者与建设者，虽然不爱张扬，但你的贡献有目共睹。利于从事学术或幕后工作。',
-    imageUrl: getStaticAssetUrl('Porcupine Beast', 'Water', 113),
+    description: '壁星造作主增财，丝蚕大熟福滔天。',
+    poem: '藏书万卷，内秀其中。',
+    fortune: '壁宿主文化、藏书与守护。你内敛沉静，喜爱思考，有着丰富的学识与精神涵养。你外表或许不张扬，但内秀其中，是团队中默默的守护者与智囊。你适合从事学术、写作或幕后支持工作，随着岁月的沉淀，你的智慧将如陈酿般愈发醇厚。',
+    imagePrompt: `A mythical Yu beast (resembling a badger/bear), translucent water body, scrolling ancient texts floating around, peaceful blue glow${STYLE_SUFFIX}`,
   },
 
-  // --- WEST (White Tiger) ---
+  // --- WEST (Metal) - White/Silver/Gold Base + Amber Accents ---
   {
     id: 14,
     name: '奎',
@@ -191,10 +185,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '狼',
     element: '木',
     direction: Direction.WEST,
-    description: '奎星造作得祯祥，家内荣和大吉昌。若是埋葬阴卒死，当年定主两三伤。',
-    poem: '文运昌盛，才华横溢。',
-    fortune: '奎宿被视为“文曲星”之一，主文章考运。你才华横溢，思维敏捷，可能有很好的艺术或文学天赋。在群体中容易脱颖而出，但要注意不要恃才傲物，保持谦逊能让你走得更远。',
-    imageUrl: getStaticAssetUrl('White Wolf', 'Wood', 114),
+    description: '奎星造作得祯祥，家内荣和大吉昌。',
+    poem: '文章星斗，独步天下。',
+    fortune: '奎宿为西方白虎之首，被视为“文曲星”。你才华横溢，思维活跃，在文学、艺术或创意领域有着极高的天赋。你既有狼的敏锐与果敢，又有文人的浪漫与情怀。一生易得名声，但需防恃才傲物，保持谦逊将助你走得更远，福禄双全。',
+    imagePrompt: `A noble White Wolf, fur shining like silver, golden cloud markings on body, howling at a moon, surrounded by floating golden calligraphy${STYLE_SUFFIX}`,
   },
   {
     id: 15,
@@ -203,10 +197,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '狗',
     element: '金',
     direction: Direction.WEST,
-    description: '娄星造作起田庭，安宫竖柱利门庭。门前井水兼沟壑，人丁牛马增前程。',
-    poem: '忠诚坚守，兴家立业。',
-    fortune: '娄宿象征着聚众与兴旺。你为人忠诚可靠，责任心强，是值得托付重任的人。你有很好的理财观念与持家能力，生活会随着时间的推移越来越富足安稳。',
-    imageUrl: getStaticAssetUrl('Golden Dog', 'Metal', 115),
+    description: '娄星造作起田庭，安宫竖柱利门庭。',
+    poem: '忠贞不渝，积少成多。',
+    fortune: '娄宿主聚众、兴旺与忠诚。你为人诚恳，办事牢靠，具有极强的责任心与服务精神。你善于理财持家，懂得积少成多的道理，是团队中坚实的后盾。你的人缘极佳，常得朋友信赖与帮助，生活平顺安康，晚年更是儿孙满堂，幸福美满。',
+    imagePrompt: `A Golden Dog guardian, fur made of spun gold strands, wearing emerald jewelry, loyal stance, warm amber glowing aura${STYLE_SUFFIX}`,
   },
   {
     id: 16,
@@ -215,10 +209,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '彘',
     element: '土',
     direction: Direction.WEST,
-    description: '胃星造作事如何，富贵荣华喜气多。埋葬贵临官禄位，夫妇齐眉老少和。',
-    poem: '性情刚烈，福寿双全。',
-    fortune: '胃宿代表着胃口与仓廪。你性格直爽，甚至有些急躁刚烈，但心地善良。你的一生福禄不缺，身体健康。只要能控制好脾气，处理好人际关系，人生将非常圆满。',
-    imageUrl: getStaticAssetUrl('Pheasant Beast', 'Earth', 116),
+    description: '胃星造作事如何，富贵荣华喜气多。',
+    poem: '吞吐天地，福泽绵长。',
+    fortune: '胃宿主仓廪、饮食与福气。你性格直率，心胸宽广，能容纳不同的意见与事物。你有着极佳的口福与财运，虽然性格偶尔急躁，但心地善良，乐于助人。一生衣食无忧，容易在餐饮或实业领域获得成功，是天生的福将。',
+    imagePrompt: `A divine Pheasant, colorful metallic feathers (gold, silver, copper), standing on a pile of gold coins, symbol of abundance, rich texture${STYLE_SUFFIX}`,
   },
   {
     id: 17,
@@ -227,10 +221,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '鸡',
     element: '日',
     direction: Direction.WEST,
-    description: '昴星造作进田牛，埋葬官灾不得休。重丧二日三人死，卖尽田园不记丘。',
-    poem: '名扬四海，威震八方。',
-    fortune: '昴宿即著名的“七姊妹星团”，光芒耀眼。你可能在某个领域拥有特殊的才能或名望。你言语犀利，有说服力。注意避免卷入官非或不必要的争执，用你的才华去照亮他人。',
-    imageUrl: getStaticAssetUrl('Divine Rooster', 'Sun', 117),
+    description: '昴星造作进田牛，埋葬官灾不得休。',
+    poem: '金鸡报晓，驱散迷雾。',
+    fortune: '昴宿主光明、教化与除邪。你言辞犀利，具有权威感，正如晨鸡报晓，能唤醒沉睡的人。你正义感强，眼里揉不得沙子，适合从事监察、法律或教育工作。虽有时显得严厉，但其实内心火热，是一盏指引他人方向的明灯。',
+    imagePrompt: `A Rooster with pure white feathers and a golden comb, body radiating holy white light, expelling darkness, heroic pose${STYLE_SUFFIX}`,
   },
   {
     id: 18,
@@ -239,10 +233,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '乌',
     element: '月',
     direction: Direction.WEST,
-    description: '毕星造作主光前，买得田园有粟钱。埋葬此日添官职，田蚕大熟永丰年。',
-    poem: '持之以恒，大器晚成。',
-    fortune: '毕宿象征着网罗与狩猎。你做事有计划，有耐心，目标明确。不像他人追求速成，你懂得“放长线钓大鱼”。坚持你的信念，你的收获将是巨大的且长久的。',
-    imageUrl: getStaticAssetUrl('Three-legged Crow', 'Moon', 118),
+    description: '毕星造作主光前，买得田园有粟钱。',
+    poem: '天罗地网，疏而不漏。',
+    fortune: '毕宿主狩猎、降雨与坚持。你目标感极强，有着超乎常人的耐心与毅力。如同布网捕猎，不急不躁，步步为营，终有所获。你做事周全，滴水不漏，是天生的策略家。虽大器晚成，但基础扎实，一旦成功便不可动摇。',
+    imagePrompt: `A mystical Crow, glossy black feathers with gold tips, holding a magical golden net, large moon background, mysterious atmosphere${STYLE_SUFFIX}`,
   },
   {
     id: 19,
@@ -251,10 +245,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '猴',
     element: '火',
     direction: Direction.WEST,
-    description: '觜星造作有徒刑，三年必定主伶丁。埋葬卒死多因此，取定寅年使杀人。',
-    poem: '机智灵活，能言善辩。',
-    fortune: '觜宿虽然极小，但能量集中。你极其聪明，反应快，口才好，善于经商或谈判。但有时过于精明会让人产生距离感。学会“难得糊涂”，以诚待人，会让你的路越走越宽。',
-    imageUrl: getStaticAssetUrl('Monkey King', 'Fire', 119),
+    description: '觜星造作有徒刑，三年必定主伶丁。',
+    poem: '灵动机变，辩才无碍。',
+    fortune: '觜宿虽小，能量巨大，主口舌与交易。你极其聪明，反应敏捷，口才便给，善于谈判与交际。你对商机有着敏锐的嗅觉，是天生的生意人。虽有时显得特立独行，但你的才华与机变总能让你化解危机，在商业战场上如鱼得水。',
+    imagePrompt: `A Monkey spirit, golden fur with flame patterns (like the reference), wearing warrior gear, holding a peach, dynamic jumping pose, fire sparks${STYLE_SUFFIX}`,
   },
   {
     id: 20,
@@ -263,13 +257,13 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '猿',
     element: '水',
     direction: Direction.WEST,
-    description: '参星造作旺人家，文星照耀大光华。只因造作田财旺，埋葬招灾男女花。',
-    poem: '才思敏捷，文武双全。',
-    fortune: '参宿是西方的将军星，光芒璀璨。你才华出众，甚至带有一点叛逆与傲气。你具备改革创新的精神，不畏权贵。在动荡或变革的环境中，最能体现你的价值。',
-    imageUrl: getStaticAssetUrl('White Ape', 'Water', 120),
+    description: '参星造作旺人家，文星照耀大光华。',
+    poem: '力拔山河，智勇双全。',
+    fortune: '参宿主革新、武将与威望。你才华出众，敢于创新，不畏强权，有着力拔山河的气概。在动荡或变革的时代，你更能彰显价值，成为时代的弄潮儿。你的一生注定不平凡，虽有波折，但每一次挑战都是你晋升的阶梯，最终必能功成名就。',
+    imagePrompt: `A White Ape warrior, muscular build with silver armor, wielding a giant staff, surrounded by water splashes and mist, powerful aura${STYLE_SUFFIX}`,
   },
 
-  // --- SOUTH (Vermilion Bird) ---
+  // --- SOUTH (Fire) - Red/Orange Base + Gold/White Accents ---
   {
     id: 21,
     name: '井',
@@ -277,10 +271,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '犴',
     element: '木',
     direction: Direction.SOUTH,
-    description: '井星造作旺蚕田，金榜题名第一先。埋葬须防惊卒死，狂颠风疾入黄泉。',
-    poem: '深谋远虑，井井有条。',
-    fortune: '井宿象征着水井与法度。你做事极有条理，讲究规矩，公正无私。你像一口深井，内涵丰富却不轻易外露。适合从事法律、行政或管理类工作，稳健是你的代名词。',
-    imageUrl: getStaticAssetUrl('Wild Dog Tapir', 'Wood', 121),
+    description: '井星造作旺蚕田，金榜题名第一先。',
+    poem: '法度严明，井然有序。',
+    fortune: '井宿为南方朱雀之首，主秩序、法度与水利。你办事严谨，公正无私，极有条理。内心深沉如古井，不轻易展露情绪，但极有涵养。你适合从事管理、行政或法律工作，能将混乱的局面梳理得井井有条，是社会的中流砥柱。',
+    imagePrompt: `A Tapir spirit, dark red fur with bright orange glowing markings, standing calmly, surrounded by floating golden scales of justice, law and order theme${STYLE_SUFFIX}`,
   },
   {
     id: 22,
@@ -289,10 +283,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '羊',
     element: '金',
     direction: Direction.SOUTH,
-    description: '鬼星起造卒人亡，堂前不见主人郎。埋葬此日官禄至，儿孙代代近君王。',
-    poem: '奇特诡谲，出奇制胜。',
-    fortune: '鬼宿虽名鬼，实为“舆鬼”，主财富与奇异。你的直觉惊人，常常能感知到他人忽略的细节。财运极佳，偏财运旺盛。性格中带有神秘色彩，不按常理出牌往往能获得奇效。',
-    imageUrl: getStaticAssetUrl('Golden Sheep', 'Metal', 122),
+    description: '鬼星起造卒人亡，堂前不见主人郎。',
+    poem: '灵感迸发，特立独行。',
+    fortune: '鬼宿主奇异、灵感与财富。你直觉敏锐，常有奇思妙想，不按常理出牌。你对未知事物充满好奇，有着独特的视角与创造力。虽然有时被认为特立独行，但你的运气极佳，往往能通过意想不到的方式获得财富与成功，一生惊喜不断。',
+    imagePrompt: `A mystical Sheep, horns made of pure gold, fleece turning into red mist/clouds, third eye glowing, surreal and ghostly beautiful${STYLE_SUFFIX}`,
   },
   {
     id: 23,
@@ -301,10 +295,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '獐',
     element: '土',
     direction: Direction.SOUTH,
-    description: '柳星造作主遭官，昼夜偷闲不暂安。埋葬瘟惶多疾病，田园退尽守孤寒。',
-    poem: '柔韧多变，心思深沉。',
-    fortune: '柳宿象征着柳条的柔顺与坚韧。你性格看似温和，实则内心很有主见，甚至有些固执。你善于以柔克刚，适应能力极强。注意不要过于沉迷于心计，真诚是打动人心的钥匙。',
-    imageUrl: getStaticAssetUrl('Roe Deer', 'Earth', 123),
+    description: '柳星造作主遭官，昼夜偷闲不暂安。',
+    poem: '身随风动，心如止水。',
+    fortune: '柳宿主柔顺、机敏与厨艺。你善于察言观色，适应力强，能灵活应对各种复杂的人际关系。外表温和谦逊，内心却极有主见与底线。你对美食或生活品质有着很高的追求，善于在平凡的生活中发现美好，日子过得有滋有味。',
+    imagePrompt: `A graceful Roe Deer, orange fur with golden spots, standing under a glowing willow tree with red leaves, warm and gentle atmosphere${STYLE_SUFFIX}`,
   },
   {
     id: 24,
@@ -313,10 +307,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '马',
     element: '日',
     direction: Direction.SOUTH,
-    description: '星星造作主妖灵，家内厨庭犬吠声。生财进益皆无用，总然归却一风尘。',
-    poem: '奔腾万里，志在四方。',
-    fortune: '星宿代表着急促与光明。你性急如火，做事效率高，不喜欢拖泥带水。你像一匹奔腾的骏马，渴望广阔的天地。年轻时可能较为奔波，但晚年定能享清福。',
-    imageUrl: getStaticAssetUrl('Sun Horse', 'Sun', 124),
+    description: '星星造作主妖灵，家内厨庭犬吠声。',
+    poem: '烈火烹油，瞬息万变。',
+    fortune: '星宿主急促、光明与驿马。你性急如火，行动力强，讨厌条条框框。像奔腾的骏马，永远在追求远方与光明。你的人生充满了变动与挑战，但也因此丰富多彩。虽然奔波劳碌，但能在不断的奋斗中实现自我价值，晚年将享受丰硕的成果。',
+    imagePrompt: `A Fire Horse, body made of living flame and magma, golden hooves, leaving a trail of fire, dynamic galloping, intense heat${STYLE_SUFFIX}`,
   },
   {
     id: 25,
@@ -325,10 +319,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '鹿',
     element: '月',
     direction: Direction.SOUTH,
-    description: '张星造作主吉祥，一庭金玉积满堂。埋葬并修官禄进，妻贤子贵寿绵长。',
-    poem: '温文尔雅，祥和富贵。',
-    fortune: '张宿象征着张开的网或琴弦。你气质优雅，待人接物恰到好处，人缘极佳。你的一生多平和安详，少有大起大落。由于得体的举止，常能获得长辈或上司的青睐。',
-    imageUrl: getStaticAssetUrl('Moon Deer', 'Moon', 125),
+    description: '张星造作主吉祥，一庭金玉积满堂。',
+    poem: '从容优雅，近悦远来。',
+    fortune: '张宿主珍宝、宴会与罗网。你气质高雅，待人接物周到得体，极具亲和力。你重视家庭与朋友，人缘极佳，常有贵人相助。你的一生多安稳富足，少有大起大落，如同月下仙鹿，优雅从容，能享受到生活中的岁月静好。',
+    imagePrompt: `A majestic Stag (like the reference), body fur is gradient red and gold with cloud patterns, glowing white antlers, swirling magical ribbons, elegant${STYLE_SUFFIX}`,
   },
   {
     id: 26,
@@ -337,10 +331,10 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '蛇',
     element: '火',
     direction: Direction.SOUTH,
-    description: '翼星造作主天孤，岁岁年年烧屋庐。埋葬修坟也如此，家门孤寡守空虚。',
-    poem: '飞翔九天，才艺双绝。',
-    fortune: '翼宿象征着朱雀的翅膀，主飞翔与音乐。你热爱艺术，崇尚自由，不喜欢被世俗的条条框框所束缚。你可能需要在外地发展才能更好地施展才华，远方有你的梦想。',
-    imageUrl: getStaticAssetUrl('Winged Serpent', 'Fire', 126),
+    description: '翼星造作主天孤，岁岁年年烧屋庐。',
+    poem: '扶摇直上，鸣于九皋。',
+    fortune: '翼宿主飞翔、艺术与远行。你热爱自由，极具艺术天分与想象力。不愿受世俗束缚，向往广阔的天地。你适合从事音乐、绘画或演艺等创意工作，只有在自由的空间里，你的才华才能得到淋漓尽致的发挥。如大鹏展翅，一飞冲天。',
+    imagePrompt: `A winged Serpent, scales of crimson and gold, wings made of fire feathers, flying towards a sun, artistic and fantasy style${STYLE_SUFFIX}`,
   },
   {
     id: 27,
@@ -349,15 +343,14 @@ export const CONSTELLATIONS: ConstellationData[] = [
     animal: '蚓',
     element: '水',
     direction: Direction.SOUTH,
-    description: '轸星造作主增财，风水高官位鼎台。田宅家财千万进，坟茔修筑富贵来。',
-    poem: '能屈能伸，顺势而为。',
-    fortune: '轸宿位于朱雀之尾，象征着结束与再生。你心思缜密，行动敏捷，非常善于观察风色。你有着极强的生命力与恢复力，无论遇到什么困难，都能像蚯蚓松土一般，默默耕耘，最终换来生机。',
-    imageUrl: getStaticAssetUrl('Dragon Earthworm', 'Water', 127),
+    description: '轸星造作主增财，风水高官位鼎台。',
+    poem: '生生不息，百折不挠。',
+    fortune: '轸宿主再生、繁衍与车骑。你生命力顽强，能屈能伸，具有极强的韧性。无论处于何种低谷，都能默默积蓄力量，寻找机会重获生机。你做事细致，善于经营，随着经验的积累，你的事业会如滚雪球般越做越大，福泽延绵子孙。',
+    imagePrompt: `A mythical Earth Dragon (worm-like), translucent pink body with golden veins, surrounded by blooming flowers and vitality, regeneration theme${STYLE_SUFFIX}`,
   },
 ];
 
 export const getConstellationByIndex = (index: number): ConstellationData => {
-  // Ensure circular safety
   const safeIndex = ((index % 28) + 28) % 28;
   return CONSTELLATIONS[safeIndex];
 }
