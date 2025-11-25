@@ -1,3 +1,4 @@
+
 export enum Direction {
   EAST = '东方青龙',
   NORTH = '北方玄武',
@@ -15,8 +16,7 @@ export interface ConstellationData {
   description: string; // Traditional concise description
   poem: string; // Classical poem
   fortune: string; // Pre-stored detailed interpretation
-  imageUrl?: string; // Optional: Base64 string from AI or static URL
-  imagePrompt: string; // The prompt used to generate the image via Gemini
+  imageUrl: string; // Required static URL (Pre-generated)
 }
 
 export interface UserRecord {
@@ -34,4 +34,4 @@ export interface UserProfile {
   avatar?: string;
 }
 
-export const LOCAL_STORAGE_KEY = 'star_destiny_record_v3';
+export const LOCAL_STORAGE_KEY = 'star_destiny_record_v6';

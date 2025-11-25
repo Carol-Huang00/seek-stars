@@ -1,234 +1,379 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useRef, useState } from 'react';
 import { ConstellationData, Direction } from '../types';
+import { CONSTELLATIONS, getConstellationByIndex } from '../services/constellationData';
 import { generateStarImage } from '../services/geminiService';
 
 interface ResultCardProps {
   data: ConstellationData;
-  userName?: string;
+  userName?: string; 
+  onRetest?: () => void; // Optional callback for re-testing
 }
 
-const ResultCard: React.FC<ResultCardProps> = ({ data, userName = "旅人" }) => {
-  const [imageUrl, setImageUrl] = useState<string | undefined>(data.imageUrl);
-  const [loading, setLoading] = useState(false);
+const ResultCard: React.FC<ResultCardProps> = ({ data, userName, onRetest }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isImgLoaded, setIsImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  useEffect(() => {
-    const cacheKey = `constellation_game_v5_${data.id}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      setImageUrl(cached);
-    } else {
-      setLoading(true);
-      generateStarImage(data.imagePrompt).then(res => {
-        if(res) {
-          localStorage.setItem(cacheKey, res);
-          setImageUrl(res);
-        }
-        setLoading(false);
-      });
+  // --- AI Workshop State ---
+  const [workshopId, setWorkshopId] = useState<number>(data.id);
+  const [aiImage, setAiImage] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Fallback Logic
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    if (!imgError) {
+      setImgError(true);
     }
-  }, [data]);
-
-  // Helper to generate a consistent "Lucky Color" based on ID
-  const getLuckyColor = (id: number) => {
-    const colors = ['#ADD8E6', '#FFB6C1', '#98FB98', '#FFD700', '#E6E6FA', '#F08080', '#87CEFA'];
-    return colors[id % colors.length];
   };
 
-  const luckyColor = getLuckyColor(data.id);
-
-  // Theme Logic: Exact match to reference colors
-  // 朱雀：红色 | 白虎：橙色 | 玄武：蓝色 | 青龙：青色
+  // Theme Logic
   const getThemeStyles = (dir: Direction) => {
     switch (dir) {
       case Direction.SOUTH: // 朱雀 - Red
         return {
           wrapper: 'bg-[#2a0a0a] border-[#ffb3b3]',
           innerBorder: 'border-[#5c2b2b]',
-          headerTag: 'border-[#ff8080] bg-[#3d1a1a] text-[#ffcccc]',
-          nameText: 'text-[#ffcccc]',
-          titleGradient: 'from-[#fff0f0] to-[#ff9999]', // White to Pink/Red
-          subTitle: 'text-[#ffb3b3]',
-          accentBox: 'bg-[#3d1a1a]/80 border-[#5c2b2b]',
-          highlight: '#ff4d4d',
+          nameBorder: 'border-[#ff3333]/50',
+          nameText: 'text-[#ffcccc]', 
+          titleGradient: 'bg-gradient-to-b from-[#ffffff] via-[#ffcccc] to-[#ff3333]',
+          titleShadow: 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] drop-shadow-[0_0_15px_rgba(255,50,50,0.6)]',
+          solidColor: '#ff3333', // For Screenshot
+          subTitle: 'text-[#ff9999]',
+          accentBox: 'border-[#ff3333]/30 bg-[#ff3333]/10'
         };
       case Direction.WEST: // 白虎 - Orange
         return {
           wrapper: 'bg-[#2a1505] border-[#ffcc80]',
           innerBorder: 'border-[#5c3a1a]',
-          headerTag: 'border-[#ffb74d] bg-[#3d220a] text-[#ffe0b2]',
+          nameBorder: 'border-[#ff8800]/50',
           nameText: 'text-[#ffe0b2]',
-          titleGradient: 'from-[#fffbf0] to-[#ffcc80]', // White to Orange/Gold
+          titleGradient: 'bg-gradient-to-b from-[#ffffff] via-[#ffe0b2] to-[#ff8800]',
+          titleShadow: 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] drop-shadow-[0_0_15px_rgba(255,160,0,0.6)]',
+          solidColor: '#ff8800',
           subTitle: 'text-[#ffcc80]',
-          accentBox: 'bg-[#3d220a]/80 border-[#5c3a1a]',
-          highlight: '#ff9800',
+          accentBox: 'border-[#ff8800]/30 bg-[#ff8800]/10'
         };
       case Direction.NORTH: // 玄武 - Blue
         return {
           wrapper: 'bg-[#050a20] border-[#99ccff]',
           innerBorder: 'border-[#1a2b5c]',
-          headerTag: 'border-[#66b3ff] bg-[#0f1a3d] text-[#cce5ff]',
+          nameBorder: 'border-[#2979ff]/50',
           nameText: 'text-[#cce5ff]',
-          titleGradient: 'from-[#f0f8ff] to-[#80bfff]', // White to Blue
+          titleGradient: 'bg-gradient-to-b from-[#ffffff] via-[#cce5ff] to-[#2979ff]',
+          titleShadow: 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] drop-shadow-[0_0_15px_rgba(40,120,255,0.6)]',
+          solidColor: '#2979ff',
           subTitle: 'text-[#99ccff]',
-          accentBox: 'bg-[#0f1a3d]/80 border-[#1a2b5c]',
-          highlight: '#00bfff',
+          accentBox: 'border-[#2979ff]/30 bg-[#2979ff]/10'
         };
       case Direction.EAST: // 青龙 - Cyan
         return {
           wrapper: 'bg-[#05201a] border-[#80ffdb]',
           innerBorder: 'border-[#1a5c4d]',
-          headerTag: 'border-[#5eead4] bg-[#0a3d33] text-[#ccfbf1]',
+          nameBorder: 'border-[#00bfa5]/50',
           nameText: 'text-[#ccfbf1]',
-          titleGradient: 'from-[#f0fdfa] to-[#5eead4]', // White to Teal
+          titleGradient: 'bg-gradient-to-b from-[#ffffff] via-[#ccfbf1] to-[#00bfa5]',
+          titleShadow: 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] drop-shadow-[0_0_15px_rgba(29,233,182,0.6)]',
+          solidColor: '#00bfa5',
           subTitle: 'text-[#80ffdb]',
-          accentBox: 'bg-[#0a3d33]/80 border-[#1a5c4d]',
-          highlight: '#1de9b6',
+          accentBox: 'border-[#00bfa5]/30 bg-[#00bfa5]/10'
         };
       default:
         return {
           wrapper: 'bg-gray-900 border-gray-500',
           innerBorder: 'border-gray-700',
-          headerTag: 'border-gray-500 bg-gray-800 text-gray-300',
+          nameBorder: 'border-white/50',
           nameText: 'text-white',
-          titleGradient: 'from-white to-gray-400',
-          subTitle: 'text-gray-400',
-          accentBox: 'bg-gray-800 border-gray-700',
-          highlight: '#ffffff',
+          titleGradient: 'bg-gradient-to-b from-white to-gray-400',
+          titleShadow: 'drop-shadow-md',
+          solidColor: '#ffffff',
+          subTitle: 'text-gray-300',
+          accentBox: 'border-white/20 bg-white/5'
         };
     }
   };
 
   const theme = getThemeStyles(data.direction);
 
+  const handleDownload = async () => {
+    if (!cardRef.current || isDownloading) return;
+    setIsDownloading(true);
+
+    try {
+      // Small delay to ensure rendering stability
+      await new Promise(r => setTimeout(r, 100));
+
+      // @ts-ignore - html2canvas is loaded via CDN
+      const canvas = await window.html2canvas(cardRef.current, {
+        useCORS: true,       // Critical for images
+        allowTaint: true,    // Allowed to capture tainted images
+        scale: 2,            // High res
+        backgroundColor: null, // Transparent bg where possible
+        logging: false,
+        onclone: (clonedDoc: Document) => {
+           // 🛠️ FIX: Manually fix the Gradient Text for screenshot
+           // html2canvas doesn't support 'bg-clip: text', so we force a solid color on the clone.
+           const titleEl = clonedDoc.getElementById('star-title-text');
+           if (titleEl) {
+             titleEl.style.backgroundImage = 'none';
+             titleEl.style.webkitBackgroundClip = 'initial';
+             titleEl.style.webkitTextFillColor = 'initial';
+             titleEl.style.color = theme.solidColor; // Use the theme's solid color
+           }
+        }
+      });
+
+      const link = document.createElement('a');
+      link.download = `暖冬节_${data.fullName}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error("Download failed", err);
+      alert("下载失败，请尝试长按图片保存");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleGenerateAiImage = async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    setAiImage(null);
+
+    const targetStar = getConstellationByIndex(workshopId);
+    
+    // Construct a high-quality prompt based on Game Art style
+    const prompt = `High fantasy game character art, masterpiece, 8k resolution, best quality, close-up shot of ${targetStar.fullName} (Chinese constellation), represented as a majestic ${targetStar.animal} spirit, dynamic pose, glowing magical energy, detailed fur and scales, traditional chinese cloud patterns on body, floating in deep dark starry night sky, cinematic lighting, ${targetStar.direction}ern mythology theme colors, bioluminescence.`;
+
+    const img = await generateStarImage(prompt);
+    if (img) {
+      setAiImage(img);
+    }
+    setIsGenerating(false);
+  };
+
+  const handleDownloadAiImage = () => {
+    if (!aiImage) return;
+    const link = document.createElement('a');
+    const targetStar = getConstellationByIndex(workshopId);
+    link.download = `AI工坊_${targetStar.fullName}.png`;
+    link.href = aiImage;
+    link.click();
+  }
+
   return (
-    <div className="animate-fade-in w-full max-w-[420px] mx-auto p-2 relative z-20">
+    <div className="w-full max-w-[420px] mx-auto p-2 relative z-20 flex flex-col gap-8 mb-10">
       
-      {/* Outer Card Wrapper */}
-      <div className={`
-        relative w-full rounded-[20px] p-1.5 shadow-2xl
-        ${theme.wrapper} border-[3px]
-      `}>
-        
-        {/* Inner Decor Line (inset) */}
+      {/* --- Main Result Card --- */}
+      <div 
+        ref={cardRef}
+        className={`
+          relative w-full rounded-[20px] p-1.5 shadow-2xl
+          ${theme.wrapper} border-[3px]
+        `}
+      >
         <div className={`
           relative w-full h-full rounded-[14px] p-5
           border ${theme.innerBorder}
           flex flex-col gap-5
         `}>
 
-          {/* --- Corner L-Shapes (The "Tech/Game" look) --- */}
+          {/* Corners */}
           <div className={`absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 ${theme.wrapper.split(' ')[1]} rounded-tl-sm opacity-80`}></div>
           <div className={`absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 ${theme.wrapper.split(' ')[1]} rounded-tr-sm opacity-80`}></div>
           <div className={`absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 ${theme.wrapper.split(' ')[1]} rounded-bl-sm opacity-80`}></div>
           <div className={`absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 ${theme.wrapper.split(' ')[1]} rounded-br-sm opacity-80`}></div>
 
-
-          {/* --- Header --- */}
-          <div className="flex justify-between items-center z-10">
-            {/* Tag */}
-            <div className={`
-              px-3 py-1 rounded-full border ${theme.headerTag}
-              text-xs font-serif tracking-widest shadow-sm
-            `}>
-              暖冬节快乐
-            </div>
-            {/* Name */}
-            <div className={`font-serif text-lg tracking-wide ${theme.nameText} font-bold drop-shadow-md`}>
-              {userName}
-            </div>
+          {/* Header Row: Minimalist Elegant Name */}
+          <div className="w-full flex justify-center items-center relative z-20 mt-3 mb-1">
+             <span className={`
+               font-serif text-lg tracking-[0.5em] font-bold 
+               ${theme.nameText} opacity-90
+               drop-shadow-sm
+               uppercase
+             `}>
+                {userName || '旅人'}
+             </span>
           </div>
 
-
-          {/* --- Image & Title Section --- */}
-          <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-inner border border-white/5 bg-black/20 group">
-             
+          {/* Image & Title Section */}
+          <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-inner border border-white/5 bg-black/20 group mt-0">
              {/* The Image */}
-             {loading ? (
-               <div className="absolute inset-0 flex items-center justify-center">
-                  <span className={`${theme.subTitle} animate-pulse font-serif text-sm`}>星灵召唤中...</span>
-               </div>
+             {imgError ? (
+                <div className="absolute inset-0 flex items-center justify-center flex-col p-4 text-center">
+                   <span className={`font-calligraphy text-8xl opacity-30 ${theme.nameText}`}>{data.name}</span>
+                </div>
              ) : (
-               <img 
-                 src={imageUrl} 
-                 alt={data.name} 
-                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" 
-               />
+                <img 
+                  src={data.imageUrl} 
+                  alt={data.name} 
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isImgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setIsImgLoaded(true)}
+                  onError={handleImgError}
+                  // IMPORTANT: Do NOT use crossOrigin here if images are local or standard HTTP.
+                  // If using external CORS-enabled images, you might need it, but for local download, removing it is safer.
+                />
              )}
              
-             {/* Bottom Gradient for Text Readability */}
-             <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none"></div>
+             {/* Fallback Loading State */}
+             {!isImgLoaded && !imgError && (
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-[#ffd700]/30 border-t-[#ffd700] rounded-full animate-spin"></div>
+               </div>
+             )}
+             
+             {/* Bottom Gradient Overlay for Text Readability */}
+             <div className="absolute bottom-0 left-0 w-full h-3/5 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none"></div>
 
              {/* Floating Title Overlay */}
-             <div className="absolute bottom-6 left-0 w-full text-center z-10 flex flex-col items-center">
-                <h1 className={`
-                  font-calligraphy text-6xl mb-2
-                  text-transparent bg-clip-text bg-gradient-to-b ${theme.titleGradient}
-                  drop-shadow-[0_4px_4px_rgba(0,0,0,1)]
-                  filter brightness-110
+             <div className="absolute bottom-5 left-0 w-full text-center z-10 flex flex-col items-center">
+                {/* ID added for html2canvas targeting */}
+                <h1 id="star-title-text" className={`
+                  font-calligraphy text-6xl mb-2 scale-y-110
+                  text-transparent bg-clip-text
+                  ${theme.titleGradient}
+                  ${theme.titleShadow}
+                  filter brightness-125
                 `}>
                   {data.fullName}
                 </h1>
                 
-                <div className="flex items-center justify-center gap-3 opacity-90">
-                   <div className={`h-[1px] w-12 ${theme.wrapper.split(' ')[1].replace('border-','bg-')}`}></div>
-                   <span className={`text-sm font-serif tracking-[0.2em] ${theme.subTitle} uppercase`}>
+                <div className={`flex items-center justify-center gap-3 opacity-90 ${theme.subTitle}`}>
+                   <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-current to-transparent opacity-60"></div>
+                   <span className={`text-xs font-serif tracking-[0.3em] uppercase font-bold drop-shadow-md`}>
                       {data.direction}
                    </span>
-                   <div className={`h-[1px] w-12 ${theme.wrapper.split(' ')[1].replace('border-','bg-')}`}></div>
+                   <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-current to-transparent opacity-60"></div>
                 </div>
              </div>
           </div>
 
-
-          {/* --- Attributes Row --- */}
-          <div className="grid grid-cols-2 gap-4">
-             {/* Element Box */}
-             <div className={`
-               flex flex-col items-center justify-center py-3 rounded-lg border ${theme.accentBox}
-               backdrop-blur-sm
-             `}>
-                <span className={`text-[10px] ${theme.subTitle} mb-1 opacity-60 tracking-widest`}>五行属性</span>
-                <span className={`text-3xl font-serif font-bold ${theme.nameText} drop-shadow-sm`}>
-                  {data.element}
-                </span>
-             </div>
-
-             {/* Color Box */}
-             <div className={`
-               flex flex-col items-center justify-center py-3 rounded-lg border ${theme.accentBox}
-               backdrop-blur-sm
-             `}>
-                <span className={`text-[10px] ${theme.subTitle} mb-1 opacity-60 tracking-widest`}>幸运色</span>
-                <div className="flex items-center gap-2 mt-1">
-                   <div className="w-5 h-5 rounded-full border border-white/20 shadow-inner" style={{ backgroundColor: luckyColor }}></div>
-                   <span className={`text-sm font-serif ${theme.nameText} opacity-90`}>{luckyColor}</span>
-                </div>
-             </div>
-          </div>
-
-
-          {/* --- Fortune Section --- */}
+          {/* Characteristic (Poem) */}
           <div className={`
-            relative mt-2 p-5 rounded-lg border ${theme.accentBox}
+            flex flex-col items-center justify-center py-5 rounded-lg border ${theme.accentBox}
+            backdrop-blur-sm relative overflow-hidden
+          `}>
+             {/* Subtle Glow Background */}
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-30"></div>
+             
+             <span className={`relative text-xl font-serif font-bold ${theme.nameText} drop-shadow-sm tracking-widest leading-relaxed text-center px-4`}>
+               “{data.poem}”
+             </span>
+          </div>
+
+          {/* Fortune Text */}
+          <div className={`
+            relative mt-0 p-4 rounded-lg border ${theme.accentBox}
             backdrop-blur-sm
           `}>
-             {/* Floating Label */}
-             <div className={`
-               absolute -top-3 left-1/2 transform -translate-x-1/2
-               px-4 py-[2px] rounded-full border ${theme.headerTag}
-               text-[10px] tracking-[0.2em] shadow-sm
-             `}>
-               星运批注
-             </div>
-
-             {/* Content */}
-             <p className={`text-justify font-serif text-[13px] leading-6 ${theme.nameText} opacity-80 indent-6`}>
+             <p className={`text-justify font-serif text-[13px] leading-6 ${theme.nameText} opacity-90 indent-6`}>
                {data.fortune}
              </p>
           </div>
 
         </div>
       </div>
+
+      {/* Buttons Container */}
+      <div className="flex flex-col gap-3">
+        {/* Main: Download Button */}
+        <button 
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className={`
+            w-full py-3 rounded-xl relative overflow-hidden group
+            bg-gradient-to-r from-purple-700 to-indigo-800
+            border border-purple-400/50
+            text-white font-bold text-lg tracking-widest
+            shadow-lg
+            transition-all duration-300 transform active:scale-[0.98]
+            flex items-center justify-center gap-2
+            ${isDownloading ? 'opacity-70 cursor-wait' : 'hover:scale-[1.02]'}
+          `}
+        >
+          {isDownloading ? (
+             <span>生成中...</span>
+          ) : (
+             <>
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#ffd700]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+               </svg>
+               <span>下载卡片</span>
+             </>
+          )}
+        </button>
+
+        {/* Retest Button (Ghost Style) */}
+        {onRetest && (
+          <button 
+            onClick={onRetest}
+            className="
+              w-full py-3 mt-1
+              text-white/40 text-sm font-serif tracking-widest
+              hover:text-[#ffd700] hover:bg-white/5
+              rounded-lg transition-colors duration-300
+              flex items-center justify-center gap-2
+            "
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            再测一次
+          </button>
+        )}
+      </div>
+
+      {/* --- AI Workshop Section --- */}
+      <div className="w-full mt-8 pt-8 border-t border-white/10 flex flex-col gap-4 animate-fade-in">
+         <div className="flex items-center gap-2 mb-2">
+            <div className="w-1 h-5 bg-[#ffd700] rounded-full"></div>
+            <h2 className="text-xl font-bold text-white font-serif tracking-widest">AI 星宿工坊</h2>
+         </div>
+         
+         <div className="bg-[#1a1c24] border border-white/10 rounded-xl p-4 flex flex-col gap-4">
+            <p className="text-xs text-gray-400">选择任意星宿，召唤独一无二的专属神兽。</p>
+            
+            <select 
+               value={workshopId}
+               onChange={(e) => setWorkshopId(Number(e.target.value))}
+               className="w-full bg-black/50 border border-white/20 text-white rounded-lg p-3 outline-none focus:border-[#ffd700]"
+            >
+               {CONSTELLATIONS.map((c) => (
+                  <option key={c.id} value={c.id}>{c.fullName} ({c.direction})</option>
+               ))}
+            </select>
+
+            <button
+               onClick={handleGenerateAiImage}
+               disabled={isGenerating}
+               className={`
+                  w-full py-3 rounded-lg border border-[#ffd700]/30
+                  bg-gradient-to-r from-orange-600 to-red-700
+                  text-white font-bold tracking-widest shadow-lg
+                  hover:scale-[1.01] active:scale-[0.99] transition-all
+                  disabled:opacity-50 disabled:cursor-not-allowed
+               `}
+            >
+               {isGenerating ? 'AI 绘制中...' : '✨ AI 祈愿 (生成)'}
+            </button>
+
+            {aiImage && (
+               <div className="flex flex-col gap-3 mt-2 animate-fade-in">
+                  <div className="relative w-full aspect-[4/5] rounded-lg overflow-hidden border border-white/20">
+                     <img src={aiImage} alt="AI Generated" className="w-full h-full object-cover" />
+                  </div>
+                  <button
+                     onClick={handleDownloadAiImage}
+                     className="w-full py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-sm text-white rounded-lg transition-colors"
+                  >
+                     保存原图
+                  </button>
+               </div>
+            )}
+         </div>
+      </div>
+
     </div>
   );
 };

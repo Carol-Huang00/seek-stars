@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY, UserRecord, ConstellationData } from './types';
 import { calculateConstellation } from './utils/calculator';
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
+    // 1. Check local record (for UI persistence)
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (stored) {
       try {
@@ -27,20 +29,34 @@ const App: React.FC = () => {
     setInitLoading(false);
   }, []);
 
-  const handleSubmission = (dateStr: string) => {
+  const handleSubmission = (dateStr: string, name: string) => {
     const constellation = calculateConstellation(dateStr);
     setDisplayData(constellation);
-    // Assuming user name input might be added back later or using default
-    const userName = "旅人"; 
+    
+    // Use provided name or default to '旅人' if empty
+    const finalName = name.trim() || "旅人";
+    
     const newRecord: UserRecord = {
       birthDate: dateStr,
       constellationId: constellation.id,
       timestamp: Date.now(),
-      userName: userName
+      userName: finalName
     };
+
+    // Always update local UI state
     setRecord(newRecord);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newRecord));
+
+    // CORE LOGIC UPDATE: Always save to backend for every query
+    // We no longer check if it was previously synced.
+    console.log("Submitting record to Feishu...");
     saveToBackend(newRecord, constellation.fullName);
+  };
+
+  const handleRetest = () => {
+    // Clear current display record to show InputForm again
+    setRecord(null);
+    setDisplayData(null);
   };
 
   if (initLoading) return null;
@@ -50,30 +66,22 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      <main className="relative z-10 w-full flex flex-col items-center justify-center min-h-[80vh]">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-y-auto">
+      <main className="relative z-10 w-full flex flex-col items-center justify-center min-h-[80vh] py-10">
         {!record ? (
           <InputForm onSubmit={handleSubmission} />
         ) : (
           displayData && (
-            <div className="w-full flex flex-col items-center">
-              <ResultCard data={displayData} userName={record.userName} />
-              <button 
-                onClick={() => {
-                  setRecord(null); 
-                  localStorage.removeItem(LOCAL_STORAGE_KEY);
-                }}
-                className="mt-8 text-white/50 text-xs border-b border-white/20 pb-1 hover:text-white transition-colors"
-              >
-                重测
-              </button>
+            <div className="w-full flex flex-col items-center animate-fade-in">
+              <ResultCard 
+                data={displayData} 
+                userName={record.userName} 
+                onRetest={handleRetest} // Pass retest handler
+              />
             </div>
           )
         )}
       </main>
-      <footer className="fixed bottom-4 text-white/20 text-[10px] font-serif uppercase tracking-widest z-0 pointer-events-none">
-        Star Destiny
-      </footer>
     </div>
   );
 };
